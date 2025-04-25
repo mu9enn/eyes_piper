@@ -6,7 +6,7 @@
 
 ## 0.安装CUDA，Anaconda
 - CUDA可以直接参照网络教程，以安装好后在终端输入`nvidia-smi`后有显示为准
-- Anaconda直接在官网下载安装，**注意安装过程中询问`是否在终端中默认调用condas`时选择`no`”**
+- Anaconda直接在官网下载安装，**注意安装过程中询问`是否在终端中默认调用conda`时选择`no`”**
 
 
 ## 1. 安装 ROS Noetic 和相机依赖
