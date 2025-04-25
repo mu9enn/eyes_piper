@@ -4,6 +4,10 @@
 **目标**：配置 Orbbec Dabai 相机，获取 color/depth 图像和点云，通过 YOLOv5 实时检测目标。  
 **日期**：2025年4月25日
 
+```bash
+
+```
+
 ## 0.安装CUDA，Anaconda
 - CUDA可以直接参照网络教程（系统设置->软件和更新->附加驱动->选择NVIDIA驱动->应用更改），以安装好后在终端输入`nvidia-smi`后有显示为准
 - Anaconda直接在官网下载安装，**注意安装过程中询问`是否在终端中默认调用conda`时选择`no`”**
@@ -90,6 +94,14 @@ sudo udevadm control --reload && sudo udevadm trigger
 ### 4.1 安装 YOLOv5
 1. 克隆代码：
    ```bash
+   # 克隆本库
+   sudo apt update
+   sudo apt install git
+   cd ~/
+   git clone https://github.com/mu9enn/yolo_workflow.git
+   cd ~/yolo_workflow
+
+   #克隆yolov5
    git clone https://github.com/ultralytics/yolov5.git
    cd ~/yolo_workflow/yolov5
    ```
