@@ -45,7 +45,7 @@ cd ~/ros_ws/src
 ```
 
 ### 2.2 安装 `ros_astra_camera`
-1. 克隆代码：
+1. 克隆代码，也可以参考[ros_astra_camera原链接](https://github.com/orbbec/ros_astra_camera)：
    ```bash
    git clone https://github.com/orbbec/ros_astra_camera.git
    ```
@@ -148,6 +148,7 @@ sudo apt install ros-noetic-cv-bridge ros-noetic-rospy
   ```
 
 ## 6. 数据采集
+常规的对YOLO进行数据集标注通常使用[LabelImg](https://github.com/HumanSignal/labelImg)或其他工具手动标注。
 
 这里提供一个基于[Lang-SAM](https://github.com/luca-medeiros/lang-segment-anything)的数据集生成+标注方法，数据集质量可能比较低，但可以快速将YOLO模型微调到目标任务，方便同步整车的联调工作。
 
@@ -155,6 +156,7 @@ sudo apt install ros-noetic-cv-bridge ros-noetic-rospy
 ```bash
 conda activate 
 conda create -n langsam python=3.11
+conda activate langsam
 pip install torch==2.4.1 torchvision==0.19.1 --extra-index-url https://download.pytorch.org/whl/cu124
 pip install -U git+https://github.com/luca-medeiros/lang-segment-anything.git
 ```
@@ -163,3 +165,56 @@ pip install -U git+https://github.com/luca-medeiros/lang-segment-anything.git
 cd ~/yoloworkflow/yolov5
 pip install -r requirements.txt
 ```
+### - 逐步调用这里写好的python文件完成数据集的生成:
+1. 拍一些目标的图片放在`captured`文件夹，收集一些其他的图片作为背景放在`backgrounds`文件夹下（建议有4000张以上且样式多样化一些）。
+2. 确保环境和目录是对的
+```bash
+conda activate langsam
+cd ~/yolo_workflow/dataset_workflow
+```
+3. 对`captured`文件夹里的图片进行分割和标注，示例代码完成的是针对红色和黄色的`pepper`进行分割，然后根据颜色把红色标注为`1`成熟，黄色标注为`0`不成熟，对不同任务需要对此代码进行具体修改。
+```bash
+python segment_label.py
+```
+4. 把分割后的图像和背景都resize成640x640大小
+```bash
+python resize_pics.py
+```
+5. 将分割后的图像和背景进行粘贴，同时生成bounding box标注
+```bash
+python synthesize_images.py
+```
+6. 标注后可以查看某些文件的bounding box是否准确
+```bash
+python test_data.py
+```
+7. 把数据分成训练和验证集
+```bash
+python train_val.py
+```
+
+### - 用生成的数据进行YOLO的训练
+
+1. 为数据集编写`.yaml`文件
+```bash
+cd ~/yolo_workflow/yolov5/data
+touch mydataset.yaml
+```
+2. 编辑`.yaml`文件，下面展示仍然只是示例，需要根据具体情况调整
+```yaml
+# Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
+path: /home/sunx/code_proj/dataset_workflow/yolo_data  # dataset root dir
+train: images/train  # train images (relative to 'path')
+val: images/val  # val images (relative to 'path')
+test:  # test images (optional)
+
+# Classes
+nc: 2  # number of classes
+names: ['immature', 'mature']  # class names
+```
+3. 运行训练
+```bash
+cd ~/yolo_workflow/yolov5
+python train.py --data mydataset.yaml --epochs 300 --weights '' --cfg yolov5s.yaml --batch-size 128
+```
+训练结果保存在`yolov5/runs/train/exp$num$/weights`目录下,把`best.pt`复制到`yolov5`文件夹下，在`ros_detect.py`中修改调用的`.pt`权重文件即可用训练好的权重进行目标检测。
