@@ -104,7 +104,7 @@ sudo udevadm control --reload && sudo udevadm trigger
    cd ~/yolo_workflow/yolov5
    touch ros_detect.py
    ```
-2. 编辑 `ros_detect.py`，（将本仓库的）。
+2. 编辑 `ros_detect.py`，（即本仓库的`ros_detect.py`）。
    
 3. 添加执行权限：
    ```bash

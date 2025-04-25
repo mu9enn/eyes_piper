@@ -233,8 +233,8 @@ def synthesize_images(bell_pepper_dir, background_dir, output_image_dir, output_
 
 
 if __name__ == "__main__":
-    bell_pepper_dir = "/home/sunx/code_proj/dataset_workflow/segmented"
-    background_dir = "/home/sunx/code_proj/dataset_workflow/backgrounds"
-    output_image_dir = "/home/sunx/code_proj/dataset_workflow/yolo_data/images"
-    output_label_dir = "/home/sunx/code_proj/dataset_workflow/yolo_data/labels"
+    bell_pepper_dir = "segmented"
+    background_dir = "backgrounds"
+    output_image_dir = "yolo_data/images"
+    output_label_dir = "yolo_data/labels"
     synthesize_images(bell_pepper_dir, background_dir, output_image_dir, output_label_dir)
