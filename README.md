@@ -4,9 +4,6 @@
 **目标**：配置 Orbbec Dabai 相机，获取 color/depth 图像和点云，通过 YOLOv5 实时检测目标。  
 **日期**：2025年4月25日
 
-```bash
-
-```
 
 ## 0.安装CUDA，Anaconda
 - CUDA可以直接参照网络教程（系统设置->软件和更新->附加驱动->选择NVIDIA驱动->应用更改），以安装好后在终端输入`nvidia-smi`后有显示为准
