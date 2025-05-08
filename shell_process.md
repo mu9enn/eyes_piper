@@ -15,3 +15,7 @@ rosservice call /joint_moveit_ctrl_endpose "joint_endpose: [0.099091, 0.008422, 
 max_velocity: 0.5
 max_acceleration: 0.5" 
 ```
+
+```
+source devel/setup.bash
+```
