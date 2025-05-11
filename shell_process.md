@@ -5,6 +5,10 @@ source devel/setup.bash
 ```
 
 ```
+roslaunch astra_camera dabai.launch
+```
+
+```
 bash can_activate.sh can0 1000000
 ```
 
