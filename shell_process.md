@@ -20,6 +20,14 @@ roslaunch piper start_single_piper.launch gripper_val_mutiple:=2
 roslaunch piper_with_gripper_moveit demo.launch use_rviz:=false
 ```
 
+```
+roslaunch piper_with_gripper_moveit static_tf.launch
+```
+
+```
+rosrun moveit_ctrl pick_one.py 
+```
+
 
 ```
 # 查看TF树
