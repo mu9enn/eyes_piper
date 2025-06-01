@@ -9,6 +9,11 @@ roslaunch astra_camera dabai.launch
 ```
 
 ```
+rosparam set /go_detect true
+rosparam set /yolo/show_image true
+```
+
+```
 bash can_activate.sh can0 1000000
 ```
 
@@ -37,6 +42,12 @@ rosrun rqt_tf_tree rqt_tf_tree
 rosrun tf tf_echo base_link link6
 ```
 
+
+```
+rosservice call /joint_moveit_ctrl_gripper "gripper: 0.035
+max_velocity: 0.5
+max_acceleration: 0.5" 
+```
 
 
 ```
