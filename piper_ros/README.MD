@@ -26,14 +26,6 @@ source devel/setup.bash
 roslaunch astra_camera dabai.launch
 ```
 
-设置参数开启目标检测与图像显示：
-
-```bash
-source devel/setup.bash
-rosparam set /go_detect true
-rosparam set /yolo/show_image true
-```
-
 > 发布检测目标坐标至话题 `/yolo/label_xyz`
 
 ---
@@ -57,16 +49,25 @@ roslaunch piper_with_gripper_moveit demo.launch use_rviz:=false
 
 ---
 
-#### **终端4：发布 camera\_link 与 gripper\_base 之间的静态TF**
+#### **终端4：发布 camera\_link 与 gripper\_base 之间的静态TF & 加载YOLO**
 
 ```bash
 source devel/setup.bash
-roslaunch piper_with_gripper_moveit static_tf.launch
+roslaunch astra_camera cam_function.launch
 ```
+
+设置参数开启目标检测与图像显示：
+
+```bash
+source devel/setup.bash
+rosparam set /go_detect true
+rosparam set /yolo/show_image true
+```
+
 
 ---
 
-#### **终端5：执行定位与抓取任务（单个果实）**
+#### **终端5：执行定位与抓取任务（单棵树）**
 
 ```bash
 source devel/setup.bash
