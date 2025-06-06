@@ -16,6 +16,8 @@
   <!-- Build dependencies -->
   <build_depend>moveit_commander</build_depend>
   <build_depend>roscpp</build_depend>
+  <build_depend>moveit_ros_planning</build_depend>
+  <build_depend>moveit_msgs</build_depend>
   <build_depend>moveit_ros_planning_interface</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>rospy</build_depend>
@@ -28,6 +30,8 @@
   <!-- Runtime dependencies -->
   <exec_depend>moveit_commander</exec_depend>
   <exec_depend>roscpp</exec_depend>
+  <exec_depend>moveit_ros_planning</exec_depend>
+  <exec_depend>moveit_msgs</exec_depend>
   <exec_depend>moveit_ros_planning_interface</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>  <!-- 添加 sensor_msgs 作为执行依赖 -->
   <exec_depend>message_runtime</exec_depend>

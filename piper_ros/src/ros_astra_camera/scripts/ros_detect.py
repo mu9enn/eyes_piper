@@ -52,31 +52,37 @@ class YoloDetector:
         rospy.loginfo("Set /go_detect := true to enable detection.")
         rospy.loginfo("Set /yolo/show_image := true to visualize detection.")
 
+        # 定时器，确保每秒5帧（0.2秒处理一次图像）
+        self.timer = rospy.Timer(rospy.Duration(0.2), self.timer_callback)
+
+        self.image_ready = False  # 标记是否有新的图像需要处理
+
     def load_model(self):
-        weights = './best.pt'
+        weights = '/home/sunx/code_proj/eyes_piper/piper_ros/src/ros_astra_camera/scripts/best.pt'
         self.model = DetectMultiBackend(weights, device=self.device).to(self.device)
-        rospy.loginfo("YOLO model loaded successfully.")
+        rospy.loginfo("🛑 YOLO model loaded successfully.")
 
     def color_callback(self, msg):
         try:
             self.color_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
-            # self.color_image = cv2.rotate(self.color_image, cv2.ROTATE_180)
-
-            # 检测控制参数
-            if rospy.get_param("/go_detect", False):
-                self.process_image()
+            self.image_ready = True  # 新图像准备好了
         except Exception as e:
             rospy.logerr(f"[color_callback] Error: {e}")
 
     def depth_callback(self, msg):
         try:
             self.depth_image = self.bridge.imgmsg_to_cv2(msg, "16UC1")
-            # self.depth_image = cv2.rotate(self.depth_image, cv2.ROTATE_180)
         except Exception as e:
             rospy.logerr(f"[depth_callback] Error: {e}")
 
     def info_callback(self, msg):
         self.camera_info = msg
+
+    def timer_callback(self, event):
+        # 定时器回调，每 0.2 秒触发一次
+        if self.image_ready:  # 只有图像准备好时才进行处理
+            self.process_image()
+            self.image_ready = False  # 处理完毕后，重置标记
 
     def process_image(self):
         if self.color_image is None or self.depth_image is None or self.camera_info is None:
@@ -103,8 +109,7 @@ class YoloDetector:
                 for *xyxy, conf, cls in reversed(det):
                     label = self.model.names[int(cls)]
 
-                    # print(f"❌ 检测到xyxy: {xyxy}，深度信息无效")
-
+                    # 计算中心点
                     cx = int((xyxy[0] + xyxy[2]) / 2)
                     cy = int((xyxy[1] + xyxy[3]) / 2)
 
@@ -128,7 +133,6 @@ class YoloDetector:
                     x3 = (cx - px) * depth / fx
                     y3 = (cy - py) * depth / fy
                     z3 = depth
-
 
                     # 更新并发布
                     self.last_label = label

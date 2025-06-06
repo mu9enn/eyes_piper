@@ -10,9 +10,9 @@
     <arg name="enable_point_cloud" default="true"/>
     <arg name="enable_point_cloud_xyzrgb" default="false"/>
     <arg name="connection_delay" default="100"/>
-    <arg name="color_width" default="1280"/>
-    <arg name="color_height" default="720"/>
-    <arg name="color_fps" default="6"/>
+    <arg name="color_width" default="640"/>
+    <arg name="color_height" default="480"/>
+    <arg name="color_fps" default="30"/>
     <arg name="enable_color" default="true"/>
     <arg name="flip_color" default="false"/>
     <arg name="color_format" default="RGB"/>
@@ -20,18 +20,18 @@
     <arg name="color_exposure" default="-1"/>
     <arg name="depth_width" default="640"/>
     <arg name="depth_height" default="400"/>
-    <arg name="depth_fps" default="6"/>
+    <arg name="depth_fps" default="30"/>
     <arg name="enable_depth" default="true"/>
     <arg name="flip_depth" default="false"/>
     <arg name="depth_format" default="Y11"/>
     <arg name="ir_width" default="640"/>
     <arg name="ir_height" default="480"/>
-    <arg name="ir_fps" default="6"/>
+    <arg name="ir_fps" default="30"/>
     <arg name="enable_ir" default="true"/>
     <arg name="ir_format" default="Y10"/>
     <arg name="flip_ir" default="false"/>
     <arg name="publish_tf" default="true"/>
-    <arg name="tf_publish_rate" default="6.0"/>
+    <arg name="tf_publish_rate" default="10.0"/>
     <arg name="ir_info_uri" default=""/>
     <arg name="color_info_uri" default=""/>
     <arg name="color_roi_x" default="-1"/>
@@ -58,7 +58,6 @@
     <arg name="enable_keep_alive" default="false"/>
     <arg name="backlight_compensation" default="0"/>
     <group ns="$(arg camera_name)">
-    
         <node name="camera" pkg="astra_camera" type="astra_camera_node" output="screen">
             <param name="camera_name" value="$(arg camera_name)"/>
             <param name="depth_align" value="$(arg depth_align)"/>
@@ -118,6 +117,5 @@
             <param name="backlight_compensation" value="$(arg backlight_compensation)"/>
             <remap from="/$(arg camera_name)/depth/color/points" to="/$(arg camera_name)/depth_registered/points"/>
         </node>
-
     </group>
 </launch>

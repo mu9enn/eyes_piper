@@ -9,6 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   message_generation
   rospy
+  moveit_ros_planning
+  moveit_msgs
 )
 
 # 添加服务文件
