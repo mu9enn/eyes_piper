@@ -54,17 +54,8 @@ class FruitPickerDebug:
 
         # 初始位置移动
         rospy.loginfo('✅ start executing DEBUG')
-        # input("按下回车将机械臂移动到初始观察位置 ...")
-
         traj = self.load_trajectory(filename="recorded_traj.pkl")
         self.move_and_detect(traj)
-
-        # initial_xyz1 = [3.952030044646735e-05, 0.5059876845443003, -1.161216970816832, -3.061826620287533e-05, 0.6553283601500449, 9.559717424322598e-05]
-        # initial_xyz2 = [-0.35239259419580926, 0.8002964971573558, -1.1612795629216544, 0.05370925566703078, 0.6552632675859501, 9.413290288408034e-05]
-        # initial_xyz3 = [3.952030044646735e-05, 0.5059876845443003, -1.161216970816832, -3.061826620287533e-05, 0.6553283601500449, 9.559717424322598e-05]
-        # self.move_and_detect(initial_xyz1)
-        # self.move_and_detect(initial_xyz2)
-        # self.move_and_detect(initial_xyz3)
 
         self.stop_detection_and_pick_fruits()
 
@@ -120,7 +111,6 @@ class FruitPickerDebug:
 
         self.execute_trajectory(traj)
 
-        # rospy.sleep(self.detect_duration)
         rospy.set_param("/go_detect", False)
         rospy.set_param("/yolo/show_image", False)
 
@@ -151,10 +141,12 @@ class FruitPickerDebug:
         rospy.signal_shutdown("No fruit left, exiting the program.")
 
     def pick_single_fruit(self, base_pose):
+        # 计算目标Yaw角
         dx, dy = base_pose[0], base_pose[1]
         target_yaw = math.atan2(dy, dx)
         target_joint1 = max(min(target_yaw, 2.618), -2.618)
 
+        # 控制base关节旋转
         piper_req = PiperMoveitCtrlRequest()
         piper_req.joint_states = ([target_joint1] + self.joint_states[1:])[:6]
         piper_req.gripper = 0.0  # Open gripper before moving
@@ -166,6 +158,12 @@ class FruitPickerDebug:
             rospy.sleep(0.5)
         except rospy.ServiceException as e:
             rospy.logerr(f"❌ Piper服务失败: {e}")
+            return
+
+        # 计算gripper_base坐标并检查是否在有效工作空间内
+        gripper_base_pose = self.calculate_gripper_base_position(base_pose, self.target_orie)
+        if not self.is_within_workspace(gripper_base_pose):
+            rospy.logwarn(f"⚠️ Gripper base position {gripper_base_pose} is outside of workspace!")
             return
 
         self.execute_moveit_motion(base_pose + self.target_orie)
@@ -198,6 +196,41 @@ class FruitPickerDebug:
                 rospy.logwarn(f"⚠️ 运动失败, 错误码: {resp.error_code}")
         except rospy.ServiceException as e:
             rospy.logerr(f"❌ MoveIt服务调用失败: {e}")
+
+    def calculate_gripper_base_position(self, end_pose, target_orie):
+        """
+        计算 gripper_base 坐标系的原点位置
+
+        :param end_pose: 目标末端位置（base_link坐标系描述）[x, y, z]
+        :param target_orie: 目标末端的姿态（base关节转动后的自旋）[x, y, z, w]
+        :return: gripper_base 坐标系原点位置 [gripper_base_x, gripper_base_y, gripper_base_z]
+        """
+        # 将四元数转换为旋转矩阵
+        rotation_matrix = quaternion_matrix([target_orie[0], target_orie[1], target_orie[2], target_orie[3]])
+
+        # 旋转矩阵的第三列就是Z轴方向向量（在base_link坐标系下描述）
+        gripper_base_direction_vector = rotation_matrix[:3, 2]  # 取旋转矩阵的Z轴列向量
+
+        # 计算偏移量（在base_link坐标系下）
+        offset = [self.end_to_base_distance * gripper_base_direction_vector[0],
+                  self.end_to_base_distance * gripper_base_direction_vector[1],
+                  self.end_to_base_distance * gripper_base_direction_vector[2]]
+
+        # 计算gripper_base坐标（end_pose位置减去偏移）
+        gripper_base_x = end_pose[0] - offset[0]
+        gripper_base_y = end_pose[1] - offset[1]
+        gripper_base_z = end_pose[2] - offset[2]
+
+        return [gripper_base_x, gripper_base_y, gripper_base_z]
+
+    def is_within_workspace(self, gripper_base_pose):
+        """
+        检查gripper_base是否在工作空间范围内
+        :param gripper_base_pose: gripper_base的坐标 [x, y, z]
+        :return: 如果在工作空间范围内返回True，否则返回False
+        """
+        distance = math.sqrt(gripper_base_pose[0] ** 2 + gripper_base_pose[1] ** 2 + gripper_base_pose[2] ** 2)
+        return distance <= self.workspace_radius
 
 if __name__ == "__main__":
     try:

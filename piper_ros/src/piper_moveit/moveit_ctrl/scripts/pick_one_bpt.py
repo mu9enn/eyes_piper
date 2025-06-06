@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-完成一棵树下的 观察 - 采摘动作（不包含与其他模块的通信，对工作空间外的果实会解算超时）：
+完成一棵树下的 观察 - 采摘动作（不包含与其他模块的通信）：
 1. 执行三个 joint_states 决定的机械臂位姿，到达后开启 self.detect_duration 时间的YOLO检测
 2. 将所有检测到的果实的 相机坐标 储存， 全部转换成 base_link 坐标后去重（基于欧式距离）
 3. 针对每一个果实 执行采摘： 先控制 base（joint1）关节使机械臂朝向果实，再调用 endpose_ctrl 采摘
@@ -29,6 +29,9 @@ class FruitPickerDebug:
         self.detect_duration = 1.0  # 观察时间（秒）
         self.pick_wait_duration = 2.0  # 每次夹取后等待时间（秒）
         self.dup_threshold = 0.1  # 两个果实的欧式距离小于 0.1m 则认定为重复
+        self.end_to_base_distance = 0.1358  # 末端到gripper_base的距离为0.1358米
+        self.workspace_radius_i = 0.1600  # 工作空间内径
+        self.workspace_radius_o = 0.5200  # 工作空间内径
 
         # 状态变量
         self.joint_states = [0.0] * 8
@@ -62,12 +65,6 @@ class FruitPickerDebug:
 
         self.stop_detection_and_pick_fruits()
 
-        # 启动观察
-        # input("按下回车启用YOLO检测并开始观察 ...")
-        # rospy.set_param("/go_detect", True)
-        # rospy.set_param("/yolo/show_image", True)
-        # rospy.loginfo("YOLO 检测已启用，观察开始")
-
         rospy.spin()
 
     def joint_cb(self, msg):
@@ -98,6 +95,44 @@ class FruitPickerDebug:
         except Exception as e:
             rospy.logerr(f"❌ TF转换失败: {e}")
             return None
+
+    def calculate_gripper_base_position(self, end_pose, target_orie):
+        """
+        计算 gripper_base 坐标系的原点位置
+
+        :param end_pose: 目标末端位置（base_link坐标系描述）[x, y, z]
+        :param target_orie: 目标末端的姿态（base关节转动后的自旋）[x, y, z, w]
+        :return: gripper_base 坐标系原点位置 [gripper_base_x, gripper_base_y, gripper_base_z]
+        """
+
+        # 将四元数转换为旋转矩阵
+        rotation_matrix = quaternion_matrix([target_orie[0], target_orie[1], target_orie[2], target_orie[3]])
+
+        # 旋转矩阵的第三列就是Z轴方向向量（在base_link坐标系下描述）
+        gripper_base_direction_vector = rotation_matrix[:3, 2]  # 取旋转矩阵的Z轴列向量
+
+        # 计算偏移量（在base_link坐标系下）
+        offset = [self.end_to_base_distance * gripper_base_direction_vector[0],
+                  self.end_to_base_distance * gripper_base_direction_vector[1],
+                  self.end_to_base_distance * gripper_base_direction_vector[2]]
+
+        # 计算gripper_base坐标（end_pose位置减去偏移）
+        gripper_base_x = end_pose[0] - offset[0]
+        gripper_base_y = end_pose[1] - offset[1]
+        gripper_base_z = end_pose[2] - offset[2] - 0.123  # 再额外减去 link1 到 base_link的偏移
+
+        return [gripper_base_x, gripper_base_y, gripper_base_z]
+
+    def is_within_workspace(self, gripper_base_pose):
+        """
+        检查gripper_base是否在工作空间范围内
+        :param gripper_base_pose: gripper_base的坐标 [x, y, z]
+        :return: 如果在工作空间范围内返回True，否则返回False
+        """
+        distance = math.sqrt(gripper_base_pose[0] ** 2 + gripper_base_pose[1] ** 2 + gripper_base_pose[2] ** 2)
+
+        output = (distance <= self.workspace_radius_o) and (distance >= self.workspace_radius_i)
+        return output
 
     def move_and_detect(self, target_joint):
 
@@ -179,6 +214,12 @@ class FruitPickerDebug:
             rospy.sleep(0.5)
         except rospy.ServiceException as e:
             rospy.logerr(f"❌ Piper服务失败: {e}")
+            return
+
+        # 计算gripper_base坐标并检查是否在有效工作空间内
+        gripper_base_pose = self.calculate_gripper_base_position(base_pose, self.target_orie)
+        if not self.is_within_workspace(gripper_base_pose):
+            rospy.logwarn(f"⚠️ Gripper base position {gripper_base_pose} is outside of workspace!")
             return
 
         # 末端到目标位置
