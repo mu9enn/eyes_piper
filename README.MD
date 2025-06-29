@@ -6,6 +6,8 @@
 
 ---
 
+⭐要讲yolo检测移植到rk3588板上需参考[https://github.com/airockchip/yolov5/blob/master/README_rkopt.md](https://github.com/airockchip/yolov5/blob/master/README_rkopt.md)
+
 ## 🧭 Quick Start
 
 ### 🔧 编译工作空间
@@ -107,7 +109,7 @@ rosrun moveit_ctrl pick_one.py
 ```bash
 ├── ros_astra_camera/       # 相机ros包
 │   ├── scripts/ 
-│   │   ├── ros_detect.py/      # 在相机上执行yolo检测的rosservice脚本文件
+│   │   ├── ros_detect.py/      # 在相机上执行yolo检测的rosservice脚本文件⭐
 ├── piper_moveit/ 
 │   ├── moveit_ctrl/     # MoveIt控制服务与任务执行脚本
 │       ├── scripts/        # pick_one.py 所在目录⭐
