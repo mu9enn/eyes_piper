@@ -6,14 +6,33 @@
 
 ---
 
-## 🧭 Quick Start 
+---
+
+## 🧭 Quick Start
 
 ### 🔧 编译工作空间
 
 ```bash
-cd ~/code_proj/piper_ros
+cd eyes_piper/piper_ros
 catkin_make
 ```
+
+### 安装 udev 规则
+
+```
+cd eyes_piper/piper_ros
+source ./devel/setup.bash
+roscd astra_camera
+./scripts/create_udev_rules
+sudo udevadm control --reload && sudo udevadm trigger
+```
+
+### 安装 Python 依赖
+
+```
+pip install -r requirement.txt
+```
+
 
 ---
 
@@ -85,16 +104,19 @@ rosrun moveit_ctrl pick_one.py
 
 ---
 
-## 📦 项目结构简述
+## 📦 项目结构简述 (piper_ros/src)
 
 ```bash
-├── astra_camera/           # 相机驱动与深度图发布
-├── moveit_ctrl/            # MoveIt控制服务与任务执行脚本
-├── piper/                  # 机械臂底层驱动与控制启动
-├── piper_with_gripper_moveit/
-│   ├── launch/
-│   │   ├── static_tf.launch     # camera_link 与 gripper_base 的坐标变换
-│   │   └── demo.launch          # MoveIt 控制器启动文件
+├── ros_astra_camera/       # 相机ros包
+│   ├── scripts/ 
+│   │   ├── ros_detect.py/      # 在相机上执行yolo检测的rosservice脚本文件
+├── piper_moveit/ 
+│   ├── moveit_ctrl/     # MoveIt控制服务与任务执行脚本
+│       ├── scripts/        # pick_one.py 所在目录⭐
+│   ├── piper_with_gripper_moveit/
+│   │   ├── launch/
+│   │   │   ├── static_tf.launch     # camera_link 与 gripper_base 的坐标变换⭐
+│   │   │   └── demo.launch          # 机械臂MoveIt 控制器启动文件
 ├── can_activate.sh         # 初始化CAN设备脚本
 └── README.md
 ```
@@ -107,7 +129,7 @@ rosrun moveit_ctrl pick_one.py
   [https://github.com/orbbec/ros\_astra\_camera](https://github.com/orbbec/ros_astra_camera)
 
 * **松灵 Piper 机械臂 API**
-  [https://github.com/agilexrobotics/piper\_ros](https://github.com/agilexrobotics/piper_ros)
+  [https://github.com/agilexrobotics/piper\_ros](https://github.com/agilexrobotics/)
 
 * **手眼标定 easy\_handeye**
   [https://github.com/IFL-CAMP/easy\_handeye](https://github.com/IFL-CAMP/easy_handeye)
