@@ -2,11 +2,11 @@
 
 ![ubuntu](https://img.shields.io/badge/Ubuntu-20.04-orange.svg) ![ros](https://img.shields.io/badge/ROS-noetic-blue.svg) ![status](https://img.shields.io/badge/Pass-blue.svg)
 
-> 本项目集成 **YOLO 目标检测**、**机械臂 MoveIt 控制** 与 **3D视觉定位**，实现对成熟果实的自动识别与抓取。
+> 本项目集成 **YOLOv5 目标检测**、**机械臂 MoveIt 控制** 与 **3D视觉定位**，实现对成熟果实的自动识别与抓取。
 
 ---
 
-⭐要讲yolo检测移植到rk3588板上需参考[https://github.com/airockchip/yolov5/blob/master/README_rkopt.md](https://github.com/airockchip/yolov5/blob/master/README_rkopt.md)
+⭐要将yolo检测移植到rk3588板上需参考[https://github.com/airockchip/yolov5/blob/master/README_rkopt.md](https://github.com/airockchip/yolov5/blob/master/README_rkopt.md)
 
 ## 🧭 Quick Start
 
