@@ -1,0 +1,12 @@
+<!-- piper_ros/src/ros_astra_camera/launch/cam_func.launch -->
+<launch>
+
+    <!-- 连接camera_link和gripper_base的tf树 -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="camera_to_gripper_tf"
+          args="-0.09 0.0 0.0 0 0 0.7071 0.7071 gripper_base camera_link" />
+
+    <!-- 开启yolo检测 -->
+    <node name="camera_detect" pkg="astra_camera" type="ros_detect.py" output="screen"/>
+
+</launch>
+

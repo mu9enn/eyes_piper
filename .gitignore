@@ -1,0 +1,73 @@
+# ========== ROS Workspace ==========
+**/build/
+**/devel/
+**/install/
+
+# ========== Model Files ==========
+*.pt
+*.pth
+*.rknn
+*.onnx
+*.tflite
+*.pb
+*.h5
+*.ckpt
+*.engine
+
+# ========== C++ / CMake ==========
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.so
+*.a
+*.o
+*.out
+
+# ========== Python ==========
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ========== Debug / Logs / Outputs ==========
+*.log
+*.txt
+*.csv
+*.json
+*.xml
+*.yaml
+output/
+outputs/
+temp/
+tmp/
+*.bin
+
+# ========== Media ==========
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.gif
+*.avi
+*.mp4
+*.mkv
+*.out.jpg
+*.result.jpg
+*.result.png
+
+# ========== IDE / Editor ==========
+.vscode/
+.idea/
+*.code-workspace
+*.user
+.project
+.cproject
+.settings/
+
+# ========== System ==========
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+.nfs*
